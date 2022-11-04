@@ -51,7 +51,7 @@ public class IntervalEvaluatingMergingTDigest {
             }
         }
         if (dataType == 3) {
-            BufferedReader reader = new BufferedReader(new FileReader(new File("4_taxipredition8M.txt")));
+            BufferedReader reader = new BufferedReader(new FileReader(new File("3_taxipredition8M.txt")));
             reader.readLine(); // ignore first line.
             String line;
             int cntN = 0;
