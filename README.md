@@ -83,4 +83,4 @@ Proof : in full.pdf
 ComparingBuildingOptimalAndOriginalSketch.java will show the construction time, query time and error rate of optimal chunk sketch and original chunk sketch.
 ```
 
-​		Here is a screen shot of out-of-database test. Result of all 4 datasets are shown(4 columns). Only 3 datasets are open.![alt](.\test_sample_screenshot_2.png)
+​		Here is a screen shot of out-of-database test. Result of all 4 datasets are shown(4 columns). Only 3 datasets are open.![image](https://github.com/thssdb/LSM-quantile/blob/main/test_sample_screenshot_2.png)
