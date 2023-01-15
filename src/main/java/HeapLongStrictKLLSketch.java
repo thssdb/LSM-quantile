@@ -68,7 +68,10 @@ public class HeapLongStrictKLLSketch extends KLLSketchForQuantile{
     num[--levelPos[0]] = x;
     N++;
     level0Sorted = false;
-    if(levelPos[1]-levelPos[0]>levelMaxSize[0])compact();
+    if(levelPos[1]-levelPos[0]>levelMaxSize[0]){
+//      System.out.println("\t\tneed compact.."+getNumLen());
+      compact();
+    }
 //    boolean flag=false;
 //    for(int i=0;i<cntLevel;i++)if(levelPos[i+1]-levelPos[i]>levelMaxSize[i])flag=true;
 //    if(flag)compact();
@@ -120,11 +123,14 @@ public class HeapLongStrictKLLSketch extends KLLSketchForQuantile{
   @Override
   public void compact(){
     boolean compacted=false;
-    for(int i=0;i<cntLevel;i++)
+    for(int i=0;i<cntLevel-1;i++)
     if(levelPos[i+1]-levelPos[i] > levelMaxSize[i]){
       compactOneLevel(i);
       compacted = true;
     }
+//    if(getLevelSize(cntLevel-1)>levelMaxSize[cntLevel-1]&&!compacted){
+//
+//    }
 
     if(!compacted)compactOneLevel(cntLevel-1);
 //    this.showLevelMaxSize();
@@ -215,6 +221,7 @@ public class HeapLongStrictKLLSketch extends KLLSketchForQuantile{
       num = oldNum;
       this.N += another.N;
     }
+    for(int i=0;i<cntLevel-1;i++)if(levelPos[i+1]-levelPos[i]>levelMaxSize[i])compact();
 //    System.out.println("\t\t??\t\t"+Arrays.toString(num));
 //    System.out.println("\t\t??\t\t"+Arrays.toString(levelPos));
 //    System.out.println("-------------------------------.............---------");
@@ -292,6 +299,7 @@ public class HeapLongStrictKLLSketch extends KLLSketchForQuantile{
       for (int i = cntLevel; i >=0; i--) levelPos[i]+=newPos0-levelPos[0];
       num = oldNum;
     }
+    for(int i=0;i<cntLevel-1;i++)if(levelPos[i+1]-levelPos[i]>levelMaxSize[i])compact();
 //    System.out.println("\t\t??\t\t"+Arrays.toString(num));
 //    System.out.println("\t\t??\t\t"+Arrays.toString(levelPos));
 //    System.out.println("-------------------------------.............---------");

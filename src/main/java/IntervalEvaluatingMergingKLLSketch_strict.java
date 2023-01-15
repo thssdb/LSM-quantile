@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class IntervalEvaluatingMergingKLLSketch {
+public class IntervalEvaluatingMergingKLLSketch_strict {
     int dataType = 1;
     static int pageN = 8192;
     static int N = 55000000/pageN*pageN, pageNum=N/pageN; // CHECK IT
-    public static int TEST_CASE=32; // CHECK IT
+    public static int TEST_CASE=16; // CHECK IT
     boolean TEST_FULL=true; // CHECK IT
     static double[] a;
     static KLLSketchForQuantile[] KLLArr;
@@ -264,7 +264,7 @@ public class IntervalEvaluatingMergingKLLSketch {
 
     public static void main(String[] args) throws IOException{
         long START=new Date().getTime();
-        IntervalEvaluatingMergingKLLSketch main;
+        IntervalEvaluatingMergingKLLSketch_strict main;
 //        main = new MainForMergeStatErrorKLL();
 //        main.prepareA();
 //        int tmp_seri = 1<<9,tmp_mem=1<<15;
@@ -293,13 +293,13 @@ public class IntervalEvaluatingMergingKLLSketch {
 //        }
 
         System.out.println("interval query"+"\n");
-        for (int startType=1,endType=4,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
-            main = new IntervalEvaluatingMergingKLLSketch();
+        for (int startType=2,endType=2,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
+            main = new IntervalEvaluatingMergingKLLSketch_strict();
             main.prepareA(dataType);
-            for(int queryN : new int[]{/*10000000,20000000,30000000,*/40000000/*,50000000*//**/})
+            for(int queryN : new int[]{/*10000000,20000000,30000000,*/40000000/*,50000000/**/})
 //                for(int query_mem : new int[]{1024*128,1024*144,1024*152,1024*160,1024*168,1024*184,/*1024*176,*/1024*192,/*1024*208,*//*1024*224,*/1024*200,1024*256,1024*384,1024*480,1024*512,1024*640,1024*1024,1024*2048})
 //                for(int query_mem : new int[]{1024*168,1024*184,1024*200})
-                for(int query_mem : new int[]{/*1024*144,1024*168,1024*256/*,1024*480,1024*640/*,1024*1024,1024*2048*/1024*512})
+                for(int query_mem : new int[]{/*1024*144,1024*168,*/1024*256/*,1024*480,1024*640/*,1024*1024,1024*2048*/})
                     for(int chunk_seri : new int[]{4096}) {
 //                        System.out.println("\tpageN:" + pageN + "\t|summary|:" + tmp_seri + "\t|Memory|:" + tmp_mem);
 //                        main.prepareWorker(chunk_seri);

@@ -3,15 +3,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class EvaluatingOptimalChunkSketch {
     static boolean errRecord = false;
     static int dataType = 1;
-    static int N = 50000000; // CHECK IT
-    static int pageN = 1 << 12, pageNum = N / pageN;
+    static int pageN = 8192;
+    static int N = 55000000/pageN*pageN, pageNum=N/pageN; // CHECK IT
     public static int TEST_CASE = 1024; // CHECK IT
     static double[] a;
     static KLLSketchForQuantile[] KLLArr;
@@ -40,7 +38,7 @@ public class EvaluatingOptimalChunkSketch {
             }
         }
         if (dataType == 2) {
-            BufferedReader reader = new BufferedReader(new FileReader(new File("2_physiological_stress.txt")));
+            BufferedReader reader = new BufferedReader(new FileReader(new File("2_SpacecraftThruster.txt")));
             reader.readLine(); // ignore first line.
             String line;
             int cntN = 0;
@@ -60,7 +58,7 @@ public class EvaluatingOptimalChunkSketch {
             }
         }
         if (dataType == 4) {
-            BufferedReader reader = new BufferedReader(new FileReader(new File("5_wh.csv")));
+            BufferedReader reader = new BufferedReader(new FileReader(new File("4_wh.csv")));
             reader.readLine(); // ignore first line.
             String line;
             int cntN = 0;
@@ -83,14 +81,31 @@ public class EvaluatingOptimalChunkSketch {
         }
     }
 
-    public int getValueActualRank(double[] sortedA, int queryN, double v) { // number of elements <= v
-        int L = 0, R = queryN - 1;
-        while (L < R) {
-            int mid = (L + R + 1) >>> 1;
-            if (v < sortedA[mid]) R = mid - 1;
-            else L = mid;
+
+    public int getValueActualRank(double[]sortedA,int queryN, double v){ // number of elements <= v
+        int L=0,R=queryN-1;
+        while(L<R){
+            int mid=(L+R+1)>>>1;
+            if(v<sortedA[mid])R=mid-1;
+            else L=mid;
         }
         return L;
+    }
+    public int getValueLessThan(double[]sortedA,int queryN, double v){ // number of elements <= v
+        int L=0,R=queryN-1;
+        while(L<R){
+            int mid=(L+R+1)>>>1;
+            if(sortedA[mid]<v)L=mid;
+            else R=mid-1;
+        }
+        return sortedA[L]<v?L:L-1;
+    }
+    public int getDeltaRank(double[]sortedA,int queryN, double v,int targetRank){
+        int rank_L = getValueLessThan(sortedA,queryN,v)+1;
+        int rank_R = getValueActualRank(sortedA,queryN,v);
+//        System.out.println("\t\t\t"+targetRank+"\t\tresultLR:"+rank_L+"..."+rank_R+"\t\tresV:"+v);
+        if(targetRank>=rank_L&&targetRank<=rank_R)return 0;
+        else return targetRank<rank_L?(targetRank-rank_L):(targetRank-rank_R);
     }
 
 
@@ -131,17 +146,17 @@ public class EvaluatingOptimalChunkSketch {
 //            optimal_worker.showNum();
 //            stream_worker.showNum();
 
-            double q_start = 0.01, q_end = 0.99, q_add = 0.005, q_count = Math.floor((q_end - q_start - 1e-10) / q_add) + 1;
-            for (double q = q_start; q < q_end + 1e-10; q += q_add) {
+            double q_add=0.0001,q_start=q_add,q_end=1-q_add,q_count = Math.floor((q_end-q_start-1e-10)/q_add)+1;
+            for(double q=q_start;q<q_end+1e-10;q+=q_add){
                 int query_rank = (int) (q * queryN);
 
                 double optimal_v = longToResult(optimal_worker.findMinValueWithRank(query_rank));
-                int optimal_delta_rank = getValueActualRank(query_a, queryN, optimal_v) - query_rank;
+                int optimal_delta_rank = getDeltaRank(query_a, queryN, optimal_v, query_rank);
                 double optimal_relative_err = 1.0 * optimal_delta_rank / (queryN);
                 err_optimal += Math.abs(optimal_relative_err) / (q_count * TEST_CASE);
 
                 double stream_v = longToResult(stream_worker.findMinValueWithRank(query_rank));
-                int stream_delta_rank = getValueActualRank(query_a, queryN, stream_v) - query_rank;
+                int stream_delta_rank = getDeltaRank(query_a, queryN, stream_v, query_rank);
                 double stream_relative_err = 1.0 * stream_delta_rank / (queryN);
                 err_stream += Math.abs(stream_relative_err) / (q_count * TEST_CASE);
 
@@ -164,6 +179,7 @@ public class EvaluatingOptimalChunkSketch {
 
 
     public static void main(String[] args) throws IOException {
+        long START=new Date().getTime();
         EvaluatingOptimalChunkSketch main;
 //        main = new MainForMergeStatErrorKLL();
 //        main.prepareA();
@@ -176,12 +192,12 @@ public class EvaluatingOptimalChunkSketch {
 //        main.show_time_result();
 
         System.out.println("interval query" + "\n");
-        for (int dataType = 1; dataType <= /*4*/3; dataType++) {
+        for (int dataType = 1; dataType <= 4; dataType++) {
             main = new EvaluatingOptimalChunkSketch();
             main.prepareA(dataType);
 
             System.out.println("\n\n\t\tKLL\tdataType:" + dataType + "\t");
-            for (int chunk_seri : new int[]{128, 256, 512, 1024}) {
+            for (int chunk_seri : new int[]{512,1024,2048,4096,8192}) {
                 if (dataType == 1) {
                     err_result.add("PageN:" + pageN + "|M_c|:" + chunk_seri + "\t");
                 }
@@ -195,5 +211,6 @@ public class EvaluatingOptimalChunkSketch {
         System.out.println("\nError rate for single chunk data:");
         for(String s:err_result)
             System.out.println(s);
+        System.out.println("\t\tALL_TIME:"+(new Date().getTime()-START));
     }
 }

@@ -51,7 +51,7 @@ public class IntervalEvaluatingMergingSampling {
             }
         }
         if (dataType == 3) {
-            BufferedReader reader = new BufferedReader(new FileReader(new File("3_taxipredition8M.txt")));
+            BufferedReader reader = new BufferedReader(new FileReader(new File("4_taxipredition8M.txt")));
             reader.readLine(); // ignore first line.
             String line;
             int cntN = 0;
@@ -180,7 +180,7 @@ public class IntervalEvaluatingMergingSampling {
         IntervalEvaluatingMergingSampling main;
 
         System.out.println("interval query" + "\n");
-        for (int dataType = 1; dataType <= /*4*/3; dataType++) { // CHECK IT
+        for (int dataType = 1; dataType <= 4; dataType++) { // CHECK IT
             main = new IntervalEvaluatingMergingSampling();
             main.prepareA(dataType);
             for (int i : new int[]{10000000,20000000,30000000,40000000,50000000/**/})

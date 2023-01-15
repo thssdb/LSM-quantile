@@ -29,7 +29,8 @@ public class TDigestForStatMerge {
     this.maxSeriByte = maxSeriByte;
     this.clusterNumMemLimit = maxMemByte / 5 / 8;
     this.clusterNumSeriLimit = maxSeriByte / (8+2);
-    this.compression = this.clusterNumMemLimit / 11; //  cluster:buffer = 1:10
+//    this.compression = this.clusterNumMemLimit / 11; //  cluster:buffer = 1:10
+    this.compression = this.clusterNumMemLimit / 8; //  cluster:buffer = 1:7
     clusterNum = 0;
     totN = 0;
     cluster = new DoubleLongPair[clusterNumMemLimit];
@@ -40,7 +41,8 @@ public class TDigestForStatMerge {
     this.maxSeriByte = maxMemByte;
     this.clusterNumMemLimit = maxMemByte / 5 / 8;
     this.clusterNumSeriLimit = maxSeriByte / 2 / 8;
-    this.compression = this.clusterNumMemLimit / 11; //  cluster:buffer = 1:10
+//    this.compression = this.clusterNumMemLimit / 11; //  cluster:buffer = 1:10
+    this.compression = this.clusterNumMemLimit / 8; //  cluster:buffer = 1:7
     clusterNum = 0;
     totN = 0;
     cluster = new DoubleLongPair[clusterNumMemLimit];
@@ -226,7 +228,8 @@ public class TDigestForStatMerge {
     this.maxSeriByte = maxMemByte;
     this.clusterNumMemLimit = maxMemByte / 2 / 8;
     this.clusterNumSeriLimit = maxSeriByte / (2 + 8);
-    this.compression = this.clusterNumMemLimit / 6; //  cluster:buffer = 1:5
+//    this.compression = this.clusterNumMemLimit / 6; //  cluster:buffer = 1:5
+    this.compression = this.clusterNumMemLimit / 8; //  cluster:buffer = 1:7
     this.clusterNum = 0;
     cluster = new DoubleLongPair[clusterNumMemLimit];
     for(int i=0;i<clusterNum;i++){
@@ -246,7 +249,8 @@ public class TDigestForStatMerge {
     this.maxSeriByte = maxMemByte;
     this.clusterNumMemLimit = maxMemByte / 2 / 8;
     this.clusterNumSeriLimit = maxSeriByte / (2 + 8);
-    this.compression = this.clusterNumMemLimit / 6; //  cluster:buffer = 1:5
+//    this.compression = this.clusterNumMemLimit / 6; //  cluster:buffer = 1:5
+    this.compression = this.clusterNumMemLimit / 8; //  cluster:buffer = 1:7
     this.clusterNum = 0;
     cluster = new DoubleLongPair[clusterNumMemLimit];
     for (int i = 0; i < clusterNum; i++) {
