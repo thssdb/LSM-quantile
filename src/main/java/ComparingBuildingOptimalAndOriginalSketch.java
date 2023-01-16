@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -13,14 +14,14 @@ public class ComparingBuildingOptimalAndOriginalSketch {
     int dataType;
     static int pageN = 8192;
     static int N = 55000000/pageN*pageN, pageNum=N/pageN; // CHECK IT
-    public static int TEST_CASE=8; // CHECK IT
+    public static int TEST_CASE=1; // CHECK IT
     static double[] a;
     static KLLSketchForQuantile[] OptimalArr;
     static HeapLongStrictKLLSketch[] OriginalArr;
     static ArrayList<String> err_result = new ArrayList<>();
     static ArrayList<String> time_result = new ArrayList<>();
     static ArrayList<String> build_time_result = new ArrayList<>();
-    boolean show_time = false,show_err=true;
+    boolean show_time = false,show_err=false;
     int RESULT_LINE=0;
 
     Random random = new Random(233);
@@ -185,12 +186,14 @@ public class ComparingBuildingOptimalAndOriginalSketch {
             RR[i] = LL[i] + queryN;
         }
 
-        OptimalArr[0].show();
-        OriginalArr[0].show();
+//        OptimalArr[0].show();
+//        OriginalArr[0].show();
 
         for(int T=0;T<TEST_CASE;T++){
-            if((T&1)==0)
-                prepareWorker(maxSeriesByte,1);
+            if((T&1)==0) {
+                show_time=false;
+                prepareWorker(maxSeriesByte, 1);
+            }
             int L = LL[T], R = RR[T];
             int pageL = (L+pageN-1)/pageN, pageR = R/pageN;
             int posL = pageL*pageN, posR = pageR*pageN;
@@ -265,31 +268,31 @@ public class ComparingBuildingOptimalAndOriginalSketch {
                 original_time+=1.0*new Date().getTime()/TEST_CASE;
             }
 
-//            if (R - L >= 0) System.arraycopy(a, L, query_a, 0, R-L);
-//            Arrays.sort(query_a);
-//
-//            double q_add=0.0001,q_start=q_add,q_end=1-q_add,q_count = Math.floor((q_end-q_start-1e-10)/q_add)+1;
-//            for(double q=q_start;q<q_end+1e-10;q+=q_add){
-//                int query_rank = (int)(q*queryN);
-//
-//                double optimal_v = longToResult(optimal_worker.findMinValueWithRank(query_rank));
-//                int optimal_delta_rank = getDeltaRank(query_a, queryN, optimal_v, query_rank);
-//                double optimal_relative_err = 1.0*optimal_delta_rank/(queryN);
-//                err_optimal+=Math.abs(optimal_relative_err)/(q_count*TEST_CASE);
-//
-//                double original_v = longToResult(original_worker.findMinValueWithRank(query_rank));
-//                int original_delta_rank = getDeltaRank(query_a, queryN, original_v, query_rank);
-//                double original_relative_err = 1.0*original_delta_rank/(queryN);
-//                err_original+=Math.abs(original_relative_err)/(q_count*TEST_CASE);
-//
-////                System.out.println("?\t\toriginal:"+original_v+" delta:"+original_delta_rank+"\t\toptimal:"+optimal_v+" delta:"+optimal_delta_rank);
-//            }
+            if (R - L >= 0) System.arraycopy(a, L, query_a, 0, R-L);
+            Arrays.sort(query_a);
+
+            double q_add=0.0001,q_start=q_add,q_end=1-q_add,q_count = Math.floor((q_end-q_start-1e-10)/q_add)+1;
+            for(double q=q_start;q<q_end+1e-10;q+=q_add){
+                int query_rank = (int)(q*queryN);
+
+                double optimal_v = longToResult(optimal_worker.findMinValueWithRank(query_rank));
+                int optimal_delta_rank = getDeltaRank(query_a, queryN, optimal_v, query_rank);
+                double optimal_relative_err = 1.0*optimal_delta_rank/(queryN);
+                err_optimal+=Math.abs(optimal_relative_err)/(q_count*TEST_CASE);
+
+                double original_v = longToResult(original_worker.findMinValueWithRank(query_rank));
+                int original_delta_rank = getDeltaRank(query_a, queryN, original_v, query_rank);
+                double original_relative_err = 1.0*original_delta_rank/(queryN);
+                err_original+=Math.abs(original_relative_err)/(q_count*TEST_CASE);
+
+//                System.out.println("?\t\toriginal:"+original_v+" delta:"+original_delta_rank+"\t\toptimal:"+optimal_v+" delta:"+optimal_delta_rank);
+            }
         }
         if(show_err) {
             System.out.println("\t\t\t" + err_optimal + "\t" + err_original);
         }
         err_result.set(RESULT_LINE,err_result.get(RESULT_LINE).concat("\t\t\t"+err_optimal+"\t"+err_original));
-        if(TEST_CASE!=0) {
+        if(TEST_CASE!=0&&show_time) {
 //            if(show_time) {
 //                System.out.print("\t" + optimal_time / TEST_CASE);
 //                System.out.print("\t" + original_time / TEST_CASE);
@@ -322,7 +325,7 @@ public class ComparingBuildingOptimalAndOriginalSketch {
 //        main.show_time_result();
 
 //        System.out.println("interval query"+"\n");
-        for (int startType=1,endType=4,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
+        for (int startType=1,endType=1,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
             main = new ComparingBuildingOptimalAndOriginalSketch();
             main.prepareA(dataType);
             for(int queryN : new int[]{/*10000000,20000000,30000000,40000000,*/40000000})
@@ -331,14 +334,14 @@ public class ComparingBuildingOptimalAndOriginalSketch {
 //                    for (int chunk_seri : new int[]{512,1024,2048,4096,8192})
 //                        main.prepareWorker(chunk_seri); // for time test.
 //                    main.show_time = true;
-                    for (int chunk_seri : new int[]{256,512,1024,2048,4096}) {
+                    for (int chunk_seri : new int[]{256/*,512,1024,2048,4096*/}) {
                         if (dataType == startType) {
                             err_result.add("N:" + queryN + ", " + "M:" + query_mem + ", " + "|M_c|:" + chunk_seri + "\t");
                             time_result.add("N:" + queryN + ", " + "M:" + query_mem + ", " + "|M_c|:" + chunk_seri + "\t");
                             build_time_result.add("N:" + queryN + ", " + "M:" + query_mem + ", " + "|M_c|:" + chunk_seri + "\t");
                         }
                         main.show_time = false;main.prepareWorker(chunk_seri,1);
-//                        main.show_time = true;main.prepareWorker(chunk_seri,TEST_CASE);
+                        main.show_time = true;main.prepareWorker(chunk_seri,TEST_CASE);
                         main.testMergeError(queryN, query_mem, chunk_seri); // CHECK IT
 //                        System.out.println("");
                         main.RESULT_LINE++;

@@ -14,8 +14,8 @@ public class IntervalEvaluatingSSTKLL {
     static int LSM_T=30;
     static int pageN = 8192;
     static int N = /*55000000*/8192*6713/pageN*pageN, pageNum=N/pageN; // CHECK IT
-    public static int TEST_CASE=128; // CHECK IT
-    boolean TEST_FULL=false; // CHECK IT
+    public static int TEST_CASE=1; // CHECK IT
+    boolean TEST_FULL=true; // CHECK IT
     static double[] a;
     static KLLSketchForQuantile[] pageKLL;
     static ObjectArrayList<ObjectArrayList<SST>> lsmNode;
@@ -263,14 +263,14 @@ public class IntervalEvaluatingSSTKLL {
             }
             merge_sst_time+=new Date().getTime();
 
-//            full_time -= new Date().getTime();
-//            HeapLongStrictKLLSketch full_worker = new HeapLongStrictKLLSketch(maxMemoryByte);
-//            for (int i = L; i < R; i++)
-//                full_worker.update(dataToLong(a[i]));
-//            full_time += new Date().getTime();
+            full_time -= new Date().getTime();
+            HeapLongStrictKLLSketch full_worker = new HeapLongStrictKLLSketch(maxMemoryByte);
+            for (int i = L; i < R; i++)
+                full_worker.update(dataToLong(a[i]));
+            full_time += new Date().getTime();
 
 //            System.out.println("????????????????????? "+merge_sst_worker.getN()+"\t\t"+full_worker.getN());
-//            assert merge_sst_worker.getN()==full_worker.getN();
+            assert merge_sst_worker.getN()==full_worker.getN();
 
 
             if (R - L >= 0) System.arraycopy(a, L, query_a, 0, R-L);
@@ -293,19 +293,19 @@ public class IntervalEvaluatingSSTKLL {
                 double merge_relative_err = 1.0*merge_delta_rank/(queryN);
                 err_merge_sst+=Math.abs(merge_relative_err)/(q_count*TEST_CASE);
 
-//                if(TEST_FULL) {
-//                    double full_v = longToResult(full_worker.findMinValueWithRank(query_rank));
-//                    int full_delta_rank = getDeltaRank(query_a, queryN, full_v, query_rank);
-//                    double full_relative_err = 1.0 * full_delta_rank / (queryN);
-//                    err_full += Math.abs(full_relative_err) / (q_count * TEST_CASE);
-////                    System.out.println("?\t\tfull_delta:"+full_delta_rank+"\t\tfull_old_delta:"+full_old_delta);
-//                }
+                if(TEST_FULL) {
+                    double full_v = longToResult(full_worker.findMinValueWithRank(query_rank));
+                    int full_delta_rank = getDeltaRank(query_a, queryN, full_v, query_rank);
+                    double full_relative_err = 1.0 * full_delta_rank / (queryN);
+                    err_full += Math.abs(full_relative_err) / (q_count * TEST_CASE);
+//                    System.out.println("?\t\tfull_delta:"+full_delta_rank+"\t\tfull_old_delta:"+full_old_delta);
+                }
 
 //                System.out.println("?\t\tfull:"+full_v+" delta:"+full_delta_rank+"\t\tmerge:"+merge_v+" delta:"+merge_delta_rank);
             }
         }
 //        err_merge/=(queryPageNum*pageN);err_full/=(queryPageNum*pageN);
-        System.out.println("\t\t"+queryN+"\t"+maxMemoryByte/1024+"\tT_s\t"+sketchSizeRatio+"\t\t"+err_merge_sst+"\t"+err_full);//        System.out.println("\t\t\tmerge-point"+"\t"+queryN*(err_mergeBuf-err_full)+"\t"+queryN*(err_merge-err_full));
+//        System.out.println("\t\t"+queryN+"\t"+maxMemoryByte/1024+"\tT_s\t"+sketchSizeRatio+"\t\t"+err_merge_sst+"\t"+err_full);//        System.out.println("\t\t\tmerge-point"+"\t"+queryN*(err_mergeBuf-err_full)+"\t"+queryN*(err_merge-err_full));
 
 
         err_result.set(RESULT_LINE,err_result.get(RESULT_LINE).concat("\t\t\t\t\t\t"+maxMemoryByte/1024+"\t\t"+err_merge_sst+(TEST_FULL?("\t"+err_full):"")+"\t\t\t"+lv_merge+(TEST_FULL?("\t"+lv_full):"")));
@@ -366,7 +366,7 @@ public class IntervalEvaluatingSSTKLL {
 //        }
 
         System.out.println("interval query"+"\n");
-        for (int startType=2,endType=2,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
+        for (int startType=1,endType=1,dataType = startType; dataType <= endType; dataType++){ // CHECK IT
             main = new IntervalEvaluatingSSTKLL();
             main.prepareA(dataType);
             for(int queryN : new int[]{/*10000000,20000000,30000000,*//*40000000,*/50000000/*40000000*/})
@@ -388,8 +388,8 @@ public class IntervalEvaluatingSSTKLL {
 //                        main.show_time_result();
                     }
         }
-        System.out.println("SST-KLL & Chunk-KLL & Online-KLL\nTEST_CASE="+TEST_CASE);
-        System.out.println("\nError rate:");
+        System.out.println("SST-KLL & Online-KLL\nTEST_CASE="+TEST_CASE);
+        System.out.println("\nError rate:\t\t\t\t\t\t\t\t\t\t\t\tsst-kll err\t\t\t\tavg_lv\t\t\t\t\tonline-kll err\t\t\t\tavg_lv");
         for(String s:err_result)
             System.out.println(s);
 //        System.out.println("\nQuery Time:");
