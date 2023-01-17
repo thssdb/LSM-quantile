@@ -4,7 +4,7 @@ Branch in Apache IoTDB: https://github.com/apache/iotdb/tree/research/LSM-quanti
 
 Three open datasets from Kaggle used in the evaluation experiments . 
 
-	
+
 	Bitcoin:	https://userscloud.com/txccw5xusv97
 	Thruster:	https://userscloud.com/6x01axzl1vii
 	Taxi:		https://userscloud.com/qmd27og0m1ix
@@ -39,11 +39,11 @@ Three open datasets from Kaggle used in the evaluation experiments .
 
 ​			Then we can run server by 
 
-				.\server\target\iotdb-server-0.13.0-SNAPSHOT\sbin\start-server.bat
+				.\iotdb\server\target\iotdb-server-0.13.0-SNAPSHOT\sbin\start-server.bat
 ​				or
 
 ```
-			.\server\target\iotdb-server-0.13.0-SNAPSHOT\sbin\start-server.sh
+			.\iotdb\server\target\iotdb-server-0.13.0-SNAPSHOT\sbin\start-server.sh
 ```
 
 ​			It is required to <u>restart</u> server for any new configuration to take effect.
@@ -60,7 +60,9 @@ Three open datasets from Kaggle used in the evaluation experiments .
 
 ​				Please look into the java code to determine the path of dataset and its schema in IoTDB.
 
+​				It must be emphasized that the LSM compaction events are executed by iotdb threads asynchronously. That means after the data are ingested ( the java or python program ends ), we need to **WAIT for compaction**. The number of data files ( can be seen in the folder iotdb\server\target\iotdb-server-0.13.0-SNAPSHOT\data\data ) will be reduced from 10000+ to 100+ in about ten minutes. 
 
+​				What's more, when you want to change the sketch size rate $\mathit{T}_s$ in config file, please make sure there is no unfinished compaction. The server always compacts files with the current $\mathit{T}_s$ .
 
 
 
@@ -87,6 +89,24 @@ Three open datasets from Kaggle used in the evaluation experiments .
 ​				B. Test in Java.
 
 ​					For example, one can modify and run iotdb\session\src\test\java\org\apache\iotdb\session\QuerySSTSketchWithDifferentTs.java to get the time cost result in Fig. 14
+
+
+
+​				C. Test in IoTDB client
+
+​					One can run client and execute any query by 
+
+				.\iotdb\cli\target\iotdb-cli-0.13.0-SNAPSHOT\sbin\start-cli.bat -h 127.0.0.1 -p 6667 -u root -pw root
+
+​				or
+
+```
+			.\iotdb\cli\target\iotdb-cli-0.13.0-SNAPSHOT\sbin\start-cli.sh -h 127.0.0.1 -p 6667 -u root -pw root
+```
+
+​						The client will show the time cost of executed query statement.
+
+
 
 
 
