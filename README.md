@@ -5,9 +5,9 @@ Branch in Apache IoTDB: https://github.com/apache/iotdb/tree/research/LSM-quanti
 Three open datasets from Kaggle used in the evaluation experiments . 
 
 
-	Bitcoin:	https://userscloud.com/as306w63hzy7
-	Thruster:	https://userscloud.com/yi7g15kb63ik
-	Taxi:		https://userscloud.com/bo49ojm2chbr
+	Bitcoin:	https://userscloud.com/ttwkwbvnym2t
+	Thruster:	https://userscloud.com/wxq3gm9mqw0f
+	Taxi:		https://userscloud.com/r49yfqw8xij7
 
 
 
